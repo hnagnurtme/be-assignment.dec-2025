@@ -1,0 +1,117 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# /idea
+.idea/
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+wheelhouse/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+.env/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Testing
+.pytest_cache/
+
+# Type checkers
+.mypy_cache/
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# PEP 582
+__pypackages__/# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+wheelhouse/
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual environments
+venv/
+.env/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# PyCharm
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Testing
+.pytest_cache/
+
+# Type checkers
+.mypy_cache/
+
+# Coverage reports
+.coverage
+htmlcov/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs and databases
+*.log
+*.sqlite3
+*.db
+
+# PEP 582
+__pypackages__/
