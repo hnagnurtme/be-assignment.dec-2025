@@ -97,6 +97,7 @@
 - **Testing**: pytest with test containers or mocks for PostgreSQL & Redis. Specify your testing approach in the README.  
 - **Deployment**: Docker + docker-compose (FastAPI + PostgreSQL + Redis + Nginx).  
 - **MCP Server**: Convert FastAPI backend to MCP (Model Context Protocol) server using an auto-conversion approach. The MCP server must automatically discover and expose all FastAPI endpoints as MCP tools without requiring manual tool definitions for each endpoint. You may use packages like `fastmcp`, `mcp-server-fastapi`, or build a custom wrapper that introspects FastAPI routes. The MCP server must be tested using the Task AI Agent (see C2).  
+- **AI Agent**: Langchain, langgraph, llama-index, openai, groq, anthropic, etc. (You can use any of these or a custom solution).
 
 ---
 
@@ -108,8 +109,6 @@
 - **Important**: The conversion must be automatic - do not manually define each tool. The solution should automatically discover FastAPI routes (via introspection) and convert them to MCP tools.
 - The MCP server should handle:
   - All CRUD endpoints automatically
-  - Authentication context (JWT tokens may need to be passed as MCP tool parameters or via headers)
-  - File uploads/downloads (if supported by your chosen MCP implementation)
 - **Testing**: MCP server must be tested using the Task AI Agent (see C2). The AI Agent will call MCP tools to verify functionality.
 ---
 
@@ -128,31 +127,6 @@ Build an intelligent Task AI Agent that interacts with your task management syst
   - Provide intelligent task suggestions and recommendations
   - Analyze task data and generate insights
   - Handle multi-step operations (e.g., "Create a task for John with high priority and set due date to next Friday")
-
-### **Implementation Approach**
-1. **Agent Architecture**:
-   - Build an AI agent service that acts as an intermediary between users and the MCP server
-   - The agent should use LLM to interpret user requests and convert them to MCP tool calls
-   - Agent should maintain conversation context for multi-turn interactions
-
-2. **MCP Integration**:
-   - Agent connects to your MCP server (same one built in C1)
-   - Uses MCP tools to perform actual task operations (create, read, update, delete tasks)
-   - Handles authentication and authorization through MCP
-
-3. **LLM Integration**:
-   - Support multiple LLM providers (at least one required: Groq, OpenAI, Anthropic, etc.)
-   - Use function calling/tool use capabilities of LLMs to map natural language to MCP tool calls
-   - Implement prompt engineering for task management context
-
-4. **Agent Features** (Implement at least 3):
-   - Natural language task creation and updates
-   - Intelligent task querying and filtering
-   - Task prioritization suggestions based on due dates and workload
-   - Automatic task assignment recommendations
-   - Task status updates via natural language
-   - Project insights and analytics via natural language queries
-   - Multi-task operations in a single request
 
 ### **Example Use Cases**
 1. User: "Create a high-priority task for reviewing the Q4 report, assign it to Sarah, and set the due date to next Monday"
@@ -192,4 +166,4 @@ Build an intelligent Task AI Agent that interacts with your task management syst
 ### **D4. Deployment & Documentation** (20 points)
 - [ ] Dockerized deployment with Nginx, PostgreSQL, Redis. **(10 points)**
 - [ ] Health check endpoints, environment variables configured. **(4 points)**
-- [ ] README with setup guide, API documentation (Swagger UI), and AI Agent usage examples. **(6 points)**
+- [ ] README with setup guide, API documentation (Swagger UI). **(6 points)**
