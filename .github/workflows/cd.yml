@@ -1,0 +1,130 @@
+name: CD
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: Build and push API
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_USERNAME }}/taskmanagement-api:${{ steps.version.outputs.VERSION }}
+            ${{ secrets.DOCKER_USERNAME }}/taskmanagement-api:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy-to-vm:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Extract version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+      
+      - name: Copy files to VM
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          source: "docker-compose.prod.yml,nginx/taskmind.conf,nginx/install.sh,nginx/ssl-params.conf"
+          target: "~/taskmanagement/"
+          strip_components: 0
+      
+      - name: Deploy to GCP VM via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USERNAME }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            # Ensure directory exists
+            mkdir -p ~/taskmanagement
+            cd ~/taskmanagement
+            
+            # Create .env file from secrets
+            cat > .env << 'EOF'
+            # Docker
+            DOCKER_USERNAME=${{ secrets.DOCKER_USERNAME }}
+            IMAGE_TAG=${{ steps.version.outputs.VERSION }}
+            
+            # Database (Self-hosted) - Hardcoded defaults
+            POSTGRES_USER=postgres
+            POSTGRES_PASSWORD=postgres
+            POSTGRES_DB=taskmanagement
+            DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/taskmanagement
+            
+            # Redis (Self-hosted internal)
+            REDIS_URL=redis://redis:6379/0
+            
+            # JWT - Only this needs to be a secret
+            JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }}
+            JWT_ALGORITHM=HS256
+            JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
+            JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
+            
+            # Application
+            APP_ENV=production
+            MAX_UPLOAD_SIZE_MB=10
+            DB_POOL_SIZE=5
+            DB_MAX_OVERFLOW=10
+            EOF
+            
+            # Pull latest images
+            docker pull ${{ secrets.DOCKER_USERNAME }}/taskmanagement-api:${{ steps.version.outputs.VERSION }}
+            
+            # Setup Nginx (Host-based)
+            chmod +x nginx/install.sh
+            
+            if [ ! -d "/etc/letsencrypt/live/taskmind.cloud.hnagnurtme.id.vn" ]; then
+              echo "Setting up Nginx with SSL..."
+              cd nginx
+              # Using default email for SSL
+              sudo ./install.sh taskmind.cloud.hnagnurtme.id.vn admin@hnagnurtme.id.vn
+              cd ..
+            else
+              echo "SSL already configured, updating Nginx config..."
+              sudo cp nginx/taskmind.conf /etc/nginx/sites-available/taskmind
+              if [ ! -f "/etc/nginx/sites-enabled/taskmind" ]; then
+                sudo ln -s /etc/nginx/sites-available/taskmind /etc/nginx/sites-enabled/
+              fi
+              if [ -f "nginx/ssl-params.conf" ]; then
+                sudo cp nginx/ssl-params.conf /etc/nginx/snippets/ssl-params.conf
+              fi
+              sudo nginx -t && sudo systemctl reload nginx
+            fi
+            
+            # Deploy Containers
+            docker-compose -f docker-compose.prod.yml down
+            docker-compose -f docker-compose.prod.yml up -d
+            
+            # Cleanup
+            docker image prune -f
+            
+            echo "✅ Deployed TaskManagement v${{ steps.version.outputs.VERSION }} successfully!"
