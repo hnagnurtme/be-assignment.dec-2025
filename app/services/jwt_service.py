@@ -1,5 +1,3 @@
-"""PyJWT implementation of IJwtService."""
-
 from datetime import datetime, timedelta, timezone
 from typing import Any
 
@@ -10,11 +8,6 @@ from app.services.interfaces import IJwtService
 
 
 class PyJwtService(IJwtService):
-    """JWT service implementation using PyJWT library.
-    
-    Handles access token and refresh token creation/validation.
-    """
-
     def __init__(
         self,
         secret_key: str | None = None,
@@ -28,10 +21,8 @@ class PyJwtService(IJwtService):
         self._refresh_expire = refresh_token_expire_days or settings.jwt_refresh_token_expire_days
 
     def create_access_token(self, data: dict[str, Any]) -> str:
-        """Create a JWT access token."""
         to_encode = data.copy()
-        
-        # Ensure subject is a string (JWT standard)
+
         if "sub" in to_encode:
             to_encode["sub"] = str(to_encode["sub"])
         
@@ -44,10 +35,7 @@ class PyJwtService(IJwtService):
         return jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
 
     def create_refresh_token(self, data: dict[str, Any]) -> str:
-        """Create a JWT refresh token."""
         to_encode = data.copy()
-        
-        # Ensure subject is a string (JWT standard)
         if "sub" in to_encode:
             to_encode["sub"] = str(to_encode["sub"])
         
@@ -60,11 +48,9 @@ class PyJwtService(IJwtService):
         return jwt.encode(to_encode, self._secret_key, algorithm=self._algorithm)
 
     def decode_token(self, token: str) -> dict[str, Any]:
-        """Decode and validate a JWT token."""
         return jwt.decode(token, self._secret_key, algorithms=[self._algorithm])
 
     def get_subject(self, token: str) -> str | None:
-        """Extract subject (user ID) from token."""
         try:
             payload = self.decode_token(token)
             return payload.get("sub")

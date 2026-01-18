@@ -53,5 +53,4 @@ class User(Base):
         return f"<User(id={self.id}, email='{self.email}', role={self.role})>"
 
 
-# Import at the end to avoid circular imports
-from app.models.organization import Organization  # noqa: E402, F401
+from app.models.organization import Organization
