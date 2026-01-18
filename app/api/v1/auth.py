@@ -1,5 +1,3 @@
-"""Authentication API endpoints."""
-
 from fastapi import APIRouter, status
 
 from app.constants import AuthDocs, Messages
@@ -27,7 +25,6 @@ async def register(
     data: RegisterRequest,
     auth_service: AuthSvc,
 ) -> ApiResponse[UserResponse]:
-    """Register a new user and create organization."""
     user = await auth_service.register(data)
     return ApiResponse(
         message=Messages.USER_REGISTERED,
@@ -45,7 +42,6 @@ async def login(
     data: LoginRequest,
     auth_service: AuthSvc,
 ) -> ApiResponse[TokenResponse]:
-    """Authenticate user and return tokens."""
     tokens = await auth_service.login(data.email, data.password)
     return ApiResponse(
         message=Messages.LOGIN_SUCCESS,
@@ -63,7 +59,6 @@ async def refresh_token(
     data: RefreshRequest,
     auth_service: AuthSvc,
 ) -> ApiResponse[TokenResponse]:
-    """Refresh access token."""
     tokens = await auth_service.refresh_token(data.refresh_token)
     return ApiResponse(
         message=Messages.TOKEN_REFRESHED,
