@@ -8,7 +8,7 @@ from fastapi import Request, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.constants import Messages, ErrorCodes
+from app.constants import ErrorCodes
 from app.core.logging import get_logger
 from app.schemas import ErrorResponse
 

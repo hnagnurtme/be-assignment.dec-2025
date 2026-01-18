@@ -1,7 +1,7 @@
 """Abstract base repository with generic CRUD operations."""
 
-from abc import ABC, abstractmethod
-from typing import Any, Generic, TypeVar
+from abc import ABC
+from typing import Generic, TypeVar
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession

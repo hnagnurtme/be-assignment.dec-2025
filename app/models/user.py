@@ -6,6 +6,7 @@ from sqlalchemy import Boolean, Enum, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+from app.models.organization import Organization
 
 
 class UserRole(str, enum.Enum):
@@ -53,4 +54,3 @@ class User(Base):
         return f"<User(id={self.id}, email='{self.email}', role={self.role})>"
 
 
-from app.models.organization import Organization

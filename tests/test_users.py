@@ -235,7 +235,7 @@ class TestUserService:
         """Test updating user with new full name."""
         # Arrange
         new_full_name = "Updated Name"
-        original_name = sample_user.full_name
+
 
         # Create a new User object for the return value
         updated_user = User(

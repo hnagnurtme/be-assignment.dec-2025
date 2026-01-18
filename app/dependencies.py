@@ -14,6 +14,10 @@ from app.repositories import (
     IOrganizationRepository,
 )
 from app.services.interfaces import IHashService, IJwtService
+from app.services.hash_service import BcryptHashService
+from app.services.jwt_service import PyJwtService
+from app.services.user_service import UserService
+from app.services.auth_service import AuthService
 
 
 # ============================================================
@@ -49,8 +53,7 @@ async def get_organization_repository(
 # Infrastructure Service Dependencies (Singletons)
 # ============================================================
 
-from app.services.hash_service import BcryptHashService
-from app.services.jwt_service import PyJwtService
+
 
 # Singleton instances
 _hash_service: IHashService | None = None
@@ -77,8 +80,7 @@ def get_jwt_service() -> IJwtService:
 # Business Service Dependencies
 # ============================================================
 
-from app.services.user_service import UserService
-from app.services.auth_service import AuthService
+
 
 
 async def get_user_service(

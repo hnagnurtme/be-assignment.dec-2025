@@ -64,7 +64,7 @@ class ExceptionMiddleware(BaseHTTPMiddleware):
                 ).model_dump(),
             )
 
-        except SQLAlchemyError as exc:
+        except SQLAlchemyError:
             logger.exception(
                 "Database error",
                 request_id=request_id,
