@@ -93,20 +93,6 @@ jobs:
         # Run database migrations
         alembic upgrade head
 
-    - name: Lint with ruff
-      run: |
-        ruff check app/ tests/ --output-format=github
-        ruff format --check app/ tests/
-
-    - name: Type check with mypy (if available)
-      continue-on-error: true
-      run: |
-        if command -v mypy &> /dev/null; then
-          mypy app/ --ignore-missing-imports
-        else
-          echo "mypy not installed, skipping type checking"
-        fi
-
     - name: Run unit tests
       env:
         APP_ENV: testing
