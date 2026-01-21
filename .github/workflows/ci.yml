@@ -207,14 +207,14 @@ jobs:
       run: |
         # Start the container and test if it's healthy
         docker run -d --name test-container -p 8000:8000 \
-          -e DATABASE_URL=sqlite:///./test.db \
+          -e DATABASE_URL=sqlite+aiosqlite:///./test.db \
           -e JWT_SECRET_KEY=test-secret \
           taskmanagement-api:${{ github.sha }}
         
         sleep 10
         
         # Test health endpoint
-        curl -f http://localhost:8000/health || exit 1
+        curl -f http://localhost:8000/api/v1/health || exit 1
         
         # Cleanup
         docker stop test-container
