@@ -1,7 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.task import Task
+    from app.models.user import User
 
 
 class Comment(Base):
@@ -29,5 +36,3 @@ class Comment(Base):
         return f"<Comment(id={self.id}, task_id={self.task_id}, user_id={self.user_id})>"
 
 
-from app.models.task import Task 
-from app.models.user import User 

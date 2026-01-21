@@ -1,8 +1,11 @@
 import pytest
 from unittest.mock import AsyncMock, Mock
 
-from fastapi import HTTPException
-
+from app.core.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException,
+)
 from app.models.project import Project
 from app.models.project_member import ProjectMember
 from app.models.user import User, UserRole
@@ -119,10 +122,10 @@ class TestProjectService:
         mock_project_repository.is_member = AsyncMock(return_value=False)
 
         # Act & Assert
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(ForbiddenException) as exc_info:
             await project_service.get_project_by_id(1, member_user)
 
-        assert exc_info.value.status_code == 403
+        assert exc_info.value.message == "You don't have access to this project"
 
     @pytest.mark.asyncio
     async def test_get_project_not_found(
@@ -133,10 +136,10 @@ class TestProjectService:
         mock_project_repository.get_by_id = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundException) as exc_info:
             await project_service.get_project_by_id(999, admin_user)
 
-        assert exc_info.value.status_code == 404
+        assert exc_info.value.message == "Project not found"
 
     @pytest.mark.asyncio
     async def test_list_projects_admin(
@@ -145,14 +148,18 @@ class TestProjectService:
         """Test admin can list all projects in organization."""
         # Arrange
         projects = [sample_project]
+        total = 1
         mock_project_repository.get_by_organization = AsyncMock(return_value=projects)
+        mock_project_repository.count_by_organization = AsyncMock(return_value=total)
 
         # Act
-        result = await project_service.list_projects(1, admin_user, 0, 10)
+        result_projects, result_total = await project_service.list_projects(1, admin_user, 0, 10)
 
         # Assert
-        assert result == projects
+        assert result_projects == projects
+        assert result_total == total
         mock_project_repository.get_by_organization.assert_called_once_with(1, 0, 10)
+        mock_project_repository.count_by_organization.assert_called_once_with(1)
 
     @pytest.mark.asyncio
     async def test_list_projects_member(
@@ -161,14 +168,18 @@ class TestProjectService:
         """Test member can only list projects they're part of."""
         # Arrange
         projects = [sample_project]
+        total = 1
         mock_project_repository.get_user_projects = AsyncMock(return_value=projects)
+        mock_project_repository.count_user_projects = AsyncMock(return_value=total)
 
         # Act
-        result = await project_service.list_projects(1, member_user, 0, 10)
+        result_projects, result_total = await project_service.list_projects(1, member_user, 0, 10)
 
         # Assert
-        assert result == projects
+        assert result_projects == projects
+        assert result_total == total
         mock_project_repository.get_user_projects.assert_called_once_with(3, 0, 10)
+        mock_project_repository.count_user_projects.assert_called_once_with(3)
 
     @pytest.mark.asyncio
     async def test_update_project_success(
@@ -195,10 +206,10 @@ class TestProjectService:
     ):
         """Test member cannot update project."""
         # Act & Assert
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(ForbiddenException) as exc_info:
             await project_service.update_project(1, member_user, name="New Name")
 
-        assert exc_info.value.status_code == 403
+        assert exc_info.value.message == "Only Admin or Manager can update projects"
 
     @pytest.mark.asyncio
     async def test_delete_project_success(
@@ -221,10 +232,10 @@ class TestProjectService:
     ):
         """Test manager cannot delete project."""
         # Act & Assert
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(ForbiddenException) as exc_info:
             await project_service.delete_project(1, manager_user)
 
-        assert exc_info.value.status_code == 403
+        assert exc_info.value.message == "Only Admin can delete projects"
 
     @pytest.mark.asyncio
     async def test_add_member_success(
@@ -269,10 +280,10 @@ class TestProjectService:
         mock_project_repository.is_member = AsyncMock(return_value=True)
 
         # Act & Assert
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(BadRequestException) as exc_info:
             await project_service.add_member(1, 3, admin_user)
 
-        assert exc_info.value.status_code == 400
+        assert exc_info.value.message == "User is already a member of this project"
 
     @pytest.mark.asyncio
     async def test_remove_member_success(
@@ -308,10 +319,10 @@ class TestProjectService:
         mock_project_repository.is_member = AsyncMock(return_value=False)
 
         # Act & Assert
-        with pytest.raises(HTTPException) as exc_info:
+        with pytest.raises(NotFoundException) as exc_info:
             await project_service.remove_member(1, 3, admin_user)
 
-        assert exc_info.value.status_code == 404
+        assert exc_info.value.message == "User is not a member of this project"
 
     @pytest.mark.asyncio
     async def test_get_members_success(

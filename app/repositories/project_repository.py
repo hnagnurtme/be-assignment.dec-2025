@@ -1,6 +1,6 @@
 """Project repository implementation."""
 
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
@@ -45,6 +45,14 @@ class ProjectRepository(BaseRepository[Project], IProjectRepository):
             .limit(limit)
         )
         return list(result.scalars().all())
+
+    async def count_by_organization(self, organization_id: int) -> int:
+        """Count total projects in an organization."""
+        result = await self.db.execute(
+            select(func.count(Project.id))
+            .where(Project.organization_id == organization_id)
+        )
+        return result.scalar_one()
 
     async def add_member(self, project_id: int, user_id: int) -> ProjectMember:
         """Add a member to a project."""
@@ -100,3 +108,12 @@ class ProjectRepository(BaseRepository[Project], IProjectRepository):
             .limit(limit)
         )
         return list(result.scalars().all())
+
+    async def count_user_projects(self, user_id: int) -> int:
+        """Count total projects a user is a member of."""
+        result = await self.db.execute(
+            select(func.count(Project.id))
+            .join(ProjectMember, ProjectMember.project_id == Project.id)
+            .where(ProjectMember.user_id == user_id)
+        )
+        return result.scalar_one()

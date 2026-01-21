@@ -6,7 +6,13 @@ from app.schemas.auth import (
     RegisterRequest,
     TokenResponse,
 )
-from app.schemas.common import ApiResponse, ErrorResponse
+from app.schemas.common import (
+    ApiResponse,
+    ErrorResponse,
+    PaginatedResponse,
+    PaginationMeta,
+    create_pagination_meta,
+)
 from app.schemas.project import (
     ProjectCreate,
     ProjectListResponse,
@@ -14,6 +20,15 @@ from app.schemas.project import (
     ProjectMemberResponse,
     ProjectResponse,
     ProjectUpdate,
+)
+from app.schemas.task import (
+    AttachmentResponse,
+    CommentCreate,
+    CommentResponse,
+    TaskCreate,
+    TaskResponse,
+    TaskStatusUpdate,
+    TaskUpdate,
 )
 from app.schemas.user import OrganizationInfo, UserCreate, UserResponse, UserUpdate
 
@@ -26,6 +41,9 @@ __all__ = [
     # Common
     "ApiResponse",
     "ErrorResponse",
+    "PaginatedResponse",
+    "PaginationMeta",
+    "create_pagination_meta",
     # Project
     "ProjectCreate",
     "ProjectListResponse",
@@ -33,6 +51,14 @@ __all__ = [
     "ProjectMemberResponse",
     "ProjectResponse",
     "ProjectUpdate",
+    # Task
+    "AttachmentResponse",
+    "CommentCreate",
+    "CommentResponse",
+    "TaskCreate",
+    "TaskResponse",
+    "TaskStatusUpdate",
+    "TaskUpdate",
     # User
     "OrganizationInfo",
     "UserCreate",

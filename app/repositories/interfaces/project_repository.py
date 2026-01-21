@@ -22,6 +22,11 @@ class IProjectRepository(IRepository[Project]):
         pass
 
     @abstractmethod
+    async def count_by_organization(self, organization_id: int) -> int:
+        """Count total projects in an organization."""
+        pass
+
+    @abstractmethod
     async def add_member(self, project_id: int, user_id: int) -> ProjectMember:
         """Add a member to a project."""
         pass
@@ -49,4 +54,9 @@ class IProjectRepository(IRepository[Project]):
         limit: int = 100,
     ) -> list[Project]:
         """Get all projects a user is a member of."""
+        pass
+
+    @abstractmethod
+    async def count_user_projects(self, user_id: int) -> int:
+        """Count total projects a user is a member of."""
         pass

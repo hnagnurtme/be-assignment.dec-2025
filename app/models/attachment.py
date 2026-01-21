@@ -1,7 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.task import Task
+    from app.models.user import User
 
 
 class Attachment(Base):
@@ -31,5 +38,3 @@ class Attachment(Base):
         return f"<Attachment(id={self.id}, name='{self.file_name}')>"
 
 
-from app.models.task import Task  
-from app.models.user import User  

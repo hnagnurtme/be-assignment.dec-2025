@@ -1,10 +1,18 @@
+from __future__ import annotations
 import enum
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import Enum, ForeignKey, String, Text, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.project import Project
+    from app.models.user import User
+    from app.models.comment import Comment
+    from app.models.attachment import Attachment
 
 
 class TaskStatus(str, enum.Enum):
@@ -86,7 +94,3 @@ class Task(Base):
         return f"<Task(id={self.id}, title='{self.title}', status={self.status})>"
 
 
-from app.models.project import Project 
-from app.models.user import User  
-from app.models.comment import Comment  
-from app.models.attachment import Attachment  
