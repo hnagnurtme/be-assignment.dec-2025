@@ -37,3 +37,10 @@ factory-boy>=3.3.0,<4.0.0
 
 # Development
 python-dotenv>=1.0.0,<2.0.0
+
+# MCP and AI Agent
+mcp>=1.0.0,<2.0.0
+langchain>=0.1.0,<0.2.0
+langchain-openai>=0.0.8,<0.1.0
+langchain-groq>=0.0.1,<0.1.0
+sse-starlette>=2.0.0,<3.0.0

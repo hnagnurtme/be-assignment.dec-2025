@@ -1,8 +1,8 @@
 """Task API endpoints."""
 
-from typing import Annotated
 
-from fastapi import APIRouter, Depends, Query, status
+
+from fastapi import APIRouter, Query, status
 
 from app.constants import Messages, TaskDocs, CommentDocs, ReportDocs
 from app.core.auth import CurrentUser
@@ -24,7 +24,7 @@ from app.schemas import (
 from fastapi import File, UploadFile
 import os
 import uuid
-from app.config import settings
+
 
 router = APIRouter(tags=["Tasks"])
 

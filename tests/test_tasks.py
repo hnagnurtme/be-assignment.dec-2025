@@ -5,12 +5,10 @@ from datetime import datetime, timedelta
 from app.core.exceptions import (
     BadRequestException,
     ForbiddenException,
-    NotFoundException,
 )
 from app.models.task import Task, TaskStatus, TaskPriority
 from app.models.user import User, UserRole
 from app.models.comment import Comment
-from app.models.attachment import Attachment
 from app.repositories.interfaces import (
     ITaskRepository,
     IProjectRepository,
@@ -18,7 +16,7 @@ from app.repositories.interfaces import (
     IAttachmentRepository,
 )
 from app.services.task_service import TaskService
-from app.schemas.task import TaskCreate, TaskUpdate
+from app.schemas.task import TaskCreate
 
 
 class TestTaskService:

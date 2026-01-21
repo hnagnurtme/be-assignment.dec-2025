@@ -3,12 +3,14 @@
 from contextlib import asynccontextmanager
 from typing import Any
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1 import router as v1_router
 from app.config import settings
 from app.core.logging import get_logger, setup_logging
+from app.mcp.server import MCPServer
+from mcp.server.sse import SseServerTransport
 from app.middleware import (
     AuthMiddleware,
     ExceptionMiddleware,
@@ -27,6 +29,19 @@ logger = get_logger(__name__)
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     logger.info("Starting application", app_name=settings.app_name)
+    
+    # Initialize MCP Server
+    mcp_server = MCPServer(app)
+    app.state.mcp_server = mcp_server
+    
+    # Initialize SSE Transport
+    sse = SseServerTransport("/mcp/messages")
+    
+    @app.get("/mcp/sse")
+    async def sse_endpoint(request: Request):
+        async with sse.connect_sse(request.scope, request.receive, request._send) as (read, write):
+            await mcp_server.server.run(read, write, mcp_server.server.create_initialization_options())
+
     yield
     logger.info("Shutting down application")
 
