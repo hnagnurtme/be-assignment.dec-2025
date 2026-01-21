@@ -29,7 +29,10 @@ __all__ = [
     "UserRepository",
     # Interfaces
     "IRepository",
+    "IAttachmentRepository",
+    "ICommentRepository",
     "IOrganizationRepository",
     "IProjectRepository",
+    "ITaskRepository",
     "IUserRepository",
 ]

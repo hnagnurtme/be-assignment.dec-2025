@@ -70,6 +70,11 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    notifications: Mapped[list["Notification"]] = relationship(
+        "Notification",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}', role={self.role})>"
@@ -80,5 +85,6 @@ from app.models.attachment import Attachment  # noqa: E402, F401
 from app.models.comment import Comment  # noqa: E402, F401
 from app.models.project_member import ProjectMember  # noqa: E402, F401
 from app.models.task import Task  # noqa: E402, F401
+from app.models.notification import Notification  # noqa: E402, F401
 
 
