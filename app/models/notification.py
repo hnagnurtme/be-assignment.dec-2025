@@ -1,5 +1,3 @@
-"""Notification model."""
-
 from sqlalchemy import ForeignKey, String, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
@@ -8,7 +6,6 @@ from app.db.base import Base
 
 
 class Notification(Base):
-    """Notification model."""
 
     __tablename__ = "notifications"
 
@@ -41,5 +38,4 @@ class Notification(Base):
         return f"<Notification(id={self.id}, user_id={self.user_id}, type='{self.type}')>"
 
 
-# Import at the end to avoid circular imports
-from app.models.user import User  # noqa: E402, F401
+from app.models.user import User  

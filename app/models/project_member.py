@@ -1,5 +1,3 @@
-"""Project Member model (Many-to-Many with attributes)."""
-
 from datetime import datetime
 
 from sqlalchemy import ForeignKey, DateTime, func
@@ -9,7 +7,6 @@ from app.db.base import Base
 
 
 class ProjectMember(Base):
-    """Project Member model - represents a user's membership in a project."""
 
     __tablename__ = "project_members"
 
@@ -35,6 +32,5 @@ class ProjectMember(Base):
         return f"<ProjectMember(project_id={self.project_id}, user_id={self.user_id})>"
 
 
-# Import at the end to avoid circular imports
-from app.models.project import Project  # noqa: E402, F401
-from app.models.user import User  # noqa: E402, F401
+from app.models.project import Project  
+from app.models.user import User  

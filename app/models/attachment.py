@@ -1,5 +1,3 @@
-"""Attachment model."""
-
 from sqlalchemy import ForeignKey, String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -7,8 +5,6 @@ from app.db.base import Base
 
 
 class Attachment(Base):
-    """Attachment model for tasks."""
-
     __tablename__ = "attachments"
 
     file_path: Mapped[str] = mapped_column(String(500), nullable=False)
@@ -35,6 +31,5 @@ class Attachment(Base):
         return f"<Attachment(id={self.id}, name='{self.file_name}')>"
 
 
-# Import at the end to avoid circular imports
-from app.models.task import Task  # noqa: E402, F401
-from app.models.user import User  # noqa: E402, F401
+from app.models.task import Task  
+from app.models.user import User  

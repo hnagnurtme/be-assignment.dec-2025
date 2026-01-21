@@ -1,5 +1,3 @@
-"""Comment model."""
-
 from sqlalchemy import ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -7,7 +5,6 @@ from app.db.base import Base
 
 
 class Comment(Base):
-    """Comment model for tasks."""
 
     __tablename__ = "comments"
 
@@ -32,6 +29,5 @@ class Comment(Base):
         return f"<Comment(id={self.id}, task_id={self.task_id}, user_id={self.user_id})>"
 
 
-# Import at the end to avoid circular imports
-from app.models.task import Task  # noqa: E402, F401
-from app.models.user import User  # noqa: E402, F401
+from app.models.task import Task 
+from app.models.user import User 

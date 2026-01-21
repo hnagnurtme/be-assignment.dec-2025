@@ -1,5 +1,3 @@
-"""Request/Response logging middleware."""
-
 import time
 from typing import Callable
 
@@ -12,14 +10,6 @@ logger = get_logger(__name__)
 
 
 class LoggingMiddleware(BaseHTTPMiddleware):
-    """Middleware to log all HTTP requests and responses.
-    
-    Logs:
-    - Request method, path, query params
-    - Response status code
-    - Request duration in milliseconds
-    - Request ID for tracing
-    """
 
     async def dispatch(
         self,

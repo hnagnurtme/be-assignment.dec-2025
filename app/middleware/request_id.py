@@ -1,5 +1,3 @@
-"""Request ID middleware for request tracing."""
-
 import uuid
 from typing import Callable
 

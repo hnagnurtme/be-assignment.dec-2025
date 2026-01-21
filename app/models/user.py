@@ -1,5 +1,3 @@
-"""User model with role-based access control."""
-
 import enum
 
 from sqlalchemy import Boolean, Enum, ForeignKey, String
@@ -10,7 +8,6 @@ from app.models.organization import Organization
 
 
 class UserRole(str, enum.Enum):
-    """User roles for RBAC."""
 
     ADMIN = "admin"
     MANAGER = "manager"
@@ -18,7 +15,6 @@ class UserRole(str, enum.Enum):
 
 
 class User(Base):
-    """User model - represents an authenticated user."""
 
     __tablename__ = "users"
 
@@ -49,8 +45,40 @@ class User(Base):
         "Organization",
         back_populates="users",
     )
+    project_memberships: Mapped[list["ProjectMember"]] = relationship(
+        "ProjectMember",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    created_tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        foreign_keys="Task.created_by_id",
+        back_populates="created_by",
+    )
+    assigned_tasks: Mapped[list["Task"]] = relationship(
+        "Task",
+        foreign_keys="Task.assignee_id",
+        back_populates="assignee",
+    )
+    comments: Mapped[list["Comment"]] = relationship(
+        "Comment",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
+    attachments: Mapped[list["Attachment"]] = relationship(
+        "Attachment",
+        back_populates="user",
+        cascade="all, delete-orphan",
+    )
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email='{self.email}', role={self.role})>"
+
+
+# Import at the end to avoid circular imports
+from app.models.attachment import Attachment  # noqa: E402, F401
+from app.models.comment import Comment  # noqa: E402, F401
+from app.models.project_member import ProjectMember  # noqa: E402, F401
+from app.models.task import Task  # noqa: E402, F401
 
 

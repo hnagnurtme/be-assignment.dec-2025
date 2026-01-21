@@ -1,5 +1,3 @@
-"""Rate limiting middleware using in-memory or Redis backend."""
-
 import time
 from collections import defaultdict
 from typing import Callable
@@ -16,14 +14,6 @@ logger = get_logger(__name__)
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    """Middleware for rate limiting requests.
-    
-    Implements sliding window rate limiting per IP address.
-    Can be configured per endpoint or globally.
-    
-    Default: 100 requests per minute per IP.
-    """
-
     def __init__(
         self,
         app,
@@ -34,8 +24,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         self._requests_per_minute = requests_per_minute
         self._burst_limit = burst_limit
         self._window_size = 60  # 1 minute in seconds
-        
-        # In-memory storage: {ip: [(timestamp, count), ...]}
         self._request_counts: dict[str, list[float]] = defaultdict(list)
 
     async def dispatch(
