@@ -34,6 +34,9 @@ class Messages:
     PROJECT_DELETED = "Project deleted successfully"
     PROJECT_RETRIEVED = "Project retrieved"
     PROJECT_LIST_RETRIEVED = "Projects retrieved"
+    PROJECT_MEMBER_ADDED = "Member added to project successfully"
+    PROJECT_MEMBER_REMOVED = "Member removed from project successfully"
+    PROJECT_MEMBERS_RETRIEVED = "Project members retrieved"
 
     # Task messages
     TASK_CREATED = "Task created successfully"

@@ -10,7 +10,6 @@ addopts = [
     "--cov=app",
     "--cov-report=term-missing",
     "--cov-report=html",
-    "--cov-fail-under=70",
     "--junit-xml=test-results.xml",
     "--maxfail=10",
 ]

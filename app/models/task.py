@@ -1,5 +1,3 @@
-"""Task model."""
-
 import enum
 from datetime import datetime
 
@@ -10,7 +8,6 @@ from app.db.base import Base
 
 
 class TaskStatus(str, enum.Enum):
-    """Task status enum."""
 
     TODO = "todo"
     IN_PROGRESS = "in-progress"
@@ -18,15 +15,12 @@ class TaskStatus(str, enum.Enum):
 
 
 class TaskPriority(str, enum.Enum):
-    """Task priority enum."""
-
     LOW = "low"
     MEDIUM = "medium"
     HIGH = "high"
 
 
 class Task(Base):
-    """Task model."""
 
     __tablename__ = "tasks"
 
@@ -59,10 +53,24 @@ class Task(Base):
         nullable=True,
         index=True,
     )
+    created_by_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
 
     # Relationships
     project: Mapped["Project"] = relationship("Project", back_populates="tasks")
-    assignee: Mapped["User"] = relationship("User", back_populates="tasks")
+    assignee: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[assignee_id],
+        back_populates="assigned_tasks",
+    )
+    created_by: Mapped["User"] = relationship(
+        "User",
+        foreign_keys=[created_by_id],
+        back_populates="created_tasks",
+    )
     comments: Mapped[list["Comment"]] = relationship(
         "Comment",
         back_populates="task",
@@ -78,8 +86,7 @@ class Task(Base):
         return f"<Task(id={self.id}, title='{self.title}', status={self.status})>"
 
 
-# Import at the end to avoid circular imports
-from app.models.project import Project  # noqa: E402, F401
-from app.models.user import User  # noqa: E402, F401
-from app.models.comment import Comment  # noqa: E402, F401
-from app.models.attachment import Attachment  # noqa: E402, F401
+from app.models.project import Project 
+from app.models.user import User  
+from app.models.comment import Comment  
+from app.models.attachment import Attachment  

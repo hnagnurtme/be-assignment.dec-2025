@@ -1,5 +1,3 @@
-"""Request validation middleware."""
-
 import re
 from typing import Callable
 

@@ -1,5 +1,3 @@
-"""Authentication middleware."""
-
 from typing import Callable
 
 import jwt
@@ -14,7 +12,6 @@ from app.schemas import ErrorResponse
 
 logger = get_logger(__name__)
 
-# Paths that don't require authentication
 PUBLIC_PATHS = [
     "/",
     "/docs",
@@ -30,7 +27,6 @@ PUBLIC_PATHS = [
 
 
 class AuthMiddleware(BaseHTTPMiddleware):
-    """Middleware to validate JWT tokens on protected routes."""
 
     def __init__(self, app):
         super().__init__(app)
@@ -44,23 +40,19 @@ class AuthMiddleware(BaseHTTPMiddleware):
         request_id = getattr(request.state, "request_id", "unknown")
         path = request.url.path
 
-        # Skip authentication for public paths
+
         if self._is_public_path(path):
             return await call_next(request)
 
-        # Get token from Authorization header
         auth_header = request.headers.get("Authorization")
         if not auth_header:
             return self._unauthorized_response(Messages.UNAUTHORIZED, request_id)
 
-        # Validate Bearer token format
         parts = auth_header.split()
         if len(parts) != 2 or parts[0].lower() != "bearer":
             return self._unauthorized_response(Messages.UNAUTHORIZED, request_id)
 
         token = parts[1]
-
-        # Validate JWT token
         try:
             payload = self._jwt_service.decode_token(token)
             user_id = payload.get("sub")
@@ -72,7 +64,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
             if token_type != "access":
                 return self._unauthorized_response(Messages.UNAUTHORIZED, request_id)
 
-            # Store user_id in request state (convert from string)
             request.state.user_id = int(user_id)
 
         except jwt.ExpiredSignatureError:
@@ -90,7 +81,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return await call_next(request)
 
     def _is_public_path(self, path: str) -> bool:
-        """Check if path is public (no auth required)."""
         if path in PUBLIC_PATHS:
             return True
         if path.startswith("/docs") or path.startswith("/redoc"):
@@ -98,7 +88,6 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return False
 
     def _unauthorized_response(self, message: str, request_id: str) -> JSONResponse:
-        """Create 401 Unauthorized response."""
         logger.warning(
             "Authentication failed",
             request_id=request_id,

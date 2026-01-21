@@ -1,5 +1,3 @@
-"""Exception handling middleware."""
-
 from typing import Callable
 
 from fastapi import Request, status
@@ -16,11 +14,6 @@ logger = get_logger(__name__)
 
 
 class ExceptionMiddleware(BaseHTTPMiddleware):
-    """Middleware to handle all exceptions globally.
-    
-    Catches exceptions during request processing and returns
-    formatted JSON error responses.
-    """
 
     async def dispatch(
         self,

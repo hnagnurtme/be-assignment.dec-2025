@@ -8,16 +8,19 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.session import get_db
 from app.db.unit_of_work import UnitOfWork
 from app.repositories import (
-    UserRepository,
-    OrganizationRepository,
-    IUserRepository,
     IOrganizationRepository,
+    IProjectRepository,
+    IUserRepository,
+    OrganizationRepository,
+    ProjectRepository,
+    UserRepository,
 )
 from app.services.interfaces import IHashService, IJwtService
+from app.services.auth_service import AuthService
 from app.services.hash_service import BcryptHashService
 from app.services.jwt_service import PyJwtService
+from app.services.project_service import ProjectService
 from app.services.user_service import UserService
-from app.services.auth_service import AuthService
 
 
 # ============================================================
@@ -44,6 +47,11 @@ async def get_organization_repository(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> IOrganizationRepository:
     return OrganizationRepository(db)
+
+async def get_project_repository(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> IProjectRepository:
+    return ProjectRepository(db)
 
 
 # ============================================================
@@ -92,6 +100,12 @@ async def get_auth_service(
 ) -> AuthService:
     return AuthService(user_repo, org_repo, hash_service, jwt_service)
 
+async def get_project_service(
+    project_repo: Annotated[IProjectRepository, Depends(get_project_repository)],
+    user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
+) -> ProjectService:
+    return ProjectService(project_repo, user_repo)
+
 
 # ============================================================
 # Type Aliases for Clean Dependency Injection
@@ -103,6 +117,7 @@ UoW = Annotated[UnitOfWork, Depends(get_unit_of_work)]
 # Repositories (interface types)
 UserRepo = Annotated[IUserRepository, Depends(get_user_repository)]
 OrgRepo = Annotated[IOrganizationRepository, Depends(get_organization_repository)]
+ProjectRepo = Annotated[IProjectRepository, Depends(get_project_repository)]
 
 # Infrastructure Services
 HashSvc = Annotated[IHashService, Depends(get_hash_service)]
@@ -111,3 +126,4 @@ JwtSvc = Annotated[IJwtService, Depends(get_jwt_service)]
 # Business Services
 UserSvc = Annotated[UserService, Depends(get_user_service)]
 AuthSvc = Annotated[AuthService, Depends(get_auth_service)]
+ProjectSvc = Annotated[ProjectService, Depends(get_project_service)]
