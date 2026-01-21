@@ -1,8 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from sqlalchemy import ForeignKey, String, Boolean, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
 
 
 class Notification(Base):
@@ -38,4 +44,3 @@ class Notification(Base):
         return f"<Notification(id={self.id}, user_id={self.user_id}, type='{self.type}')>"
 
 
-from app.models.user import User  

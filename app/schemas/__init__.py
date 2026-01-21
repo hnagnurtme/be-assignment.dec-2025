@@ -6,7 +6,13 @@ from app.schemas.auth import (
     RegisterRequest,
     TokenResponse,
 )
-from app.schemas.common import ApiResponse, ErrorResponse
+from app.schemas.common import (
+    ApiResponse,
+    ErrorResponse,
+    PaginatedResponse,
+    PaginationMeta,
+    create_pagination_meta,
+)
 from app.schemas.project import (
     ProjectCreate,
     ProjectListResponse,
@@ -26,6 +32,9 @@ __all__ = [
     # Common
     "ApiResponse",
     "ErrorResponse",
+    "PaginatedResponse",
+    "PaginationMeta",
+    "create_pagination_meta",
     # Project
     "ProjectCreate",
     "ProjectListResponse",

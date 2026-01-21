@@ -1,5 +1,8 @@
-from fastapi import HTTPException, status
-
+from app.core.exceptions import (
+    BadRequestException,
+    ForbiddenException,
+    NotFoundException,
+)
 from app.models.project import Project
 from app.models.project_member import ProjectMember
 from app.models.user import User, UserRole
@@ -37,17 +40,11 @@ class ProjectService:
         """Get project by ID with authorization check."""
         project = await self._project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found",
-            )
+            raise NotFoundException("Project not found")
 
         # Check if user has access to this project
         if not await self._can_access_project(project, user):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
+            raise ForbiddenException("You don't have access to this project")
 
         return project
 
@@ -57,16 +54,24 @@ class ProjectService:
         user: User,
         skip: int = 0,
         limit: int = 100,
-    ) -> list[Project]:
-        """List projects based on user role."""
+    ) -> tuple[list[Project], int]:
+        """List projects based on user role with total count.
+        
+        Returns:
+            Tuple of (projects list, total count)
+        """
         # Admin and Manager can see all projects in their organization
         if user.role in [UserRole.ADMIN, UserRole.MANAGER]:
-            return await self._project_repo.get_by_organization(
+            projects = await self._project_repo.get_by_organization(
                 organization_id, skip, limit
             )
+            total = await self._project_repo.count_by_organization(organization_id)
+            return projects, total
 
         # Members can only see projects they are part of
-        return await self._project_repo.get_user_projects(user.id, skip, limit)
+        projects = await self._project_repo.get_user_projects(user.id, skip, limit)
+        total = await self._project_repo.count_user_projects(user.id)
+        return projects, total
 
     async def update_project(
         self,
@@ -78,24 +83,15 @@ class ProjectService:
         """Update project (Admin/Manager only)."""
         # Check authorization
         if user.role not in [UserRole.ADMIN, UserRole.MANAGER]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only Admin or Manager can update projects",
-            )
+            raise ForbiddenException("Only Admin or Manager can update projects")
 
         project = await self._project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found",
-            )
+            raise NotFoundException("Project not found")
 
         # Check if project belongs to user's organization
         if project.organization_id != user.organization_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
+            raise ForbiddenException("You don't have access to this project")
 
         # Update fields
         if name is not None:
@@ -109,24 +105,15 @@ class ProjectService:
         """Delete project (Admin only)."""
         # Only Admin can delete projects
         if user.role != UserRole.ADMIN:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only Admin can delete projects",
-            )
+            raise ForbiddenException("Only Admin can delete projects")
 
         project = await self._project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found",
-            )
+            raise NotFoundException("Project not found")
 
         # Check if project belongs to user's organization
         if project.organization_id != user.organization_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
+            raise ForbiddenException("You don't have access to this project")
 
         await self._project_repo.delete(project)
 
@@ -139,45 +126,27 @@ class ProjectService:
         """Add member to project (Admin/Manager only)."""
         # Check authorization
         if current_user.role not in [UserRole.ADMIN, UserRole.MANAGER]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only Admin or Manager can add members",
-            )
+            raise ForbiddenException("Only Admin or Manager can add members")
 
         # Check if project exists and user has access
         project = await self._project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found",
-            )
+            raise NotFoundException("Project not found")
 
         if project.organization_id != current_user.organization_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
+            raise ForbiddenException("You don't have access to this project")
 
         # Check if user to be added exists and is in the same organization
         user_to_add = await self._user_repo.get_by_id(user_id)
         if not user_to_add:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User not found",
-            )
+            raise NotFoundException("User not found")
 
         if user_to_add.organization_id != current_user.organization_id:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User must be in the same organization",
-            )
+            raise BadRequestException("User must be in the same organization")
 
         # Check if user is already a member
         if await self._project_repo.is_member(project_id, user_id):
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="User is already a member of this project",
-            )
+            raise BadRequestException("User is already a member of this project")
 
         return await self._project_repo.add_member(project_id, user_id)
 
@@ -190,31 +159,19 @@ class ProjectService:
         """Remove member from project (Admin/Manager only)."""
         # Check authorization
         if current_user.role not in [UserRole.ADMIN, UserRole.MANAGER]:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Only Admin or Manager can remove members",
-            )
+            raise ForbiddenException("Only Admin or Manager can remove members")
 
         # Check if project exists and user has access
         project = await self._project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found",
-            )
+            raise NotFoundException("Project not found")
 
         if project.organization_id != current_user.organization_id:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
+            raise ForbiddenException("You don't have access to this project")
 
         # Check if user is a member
         if not await self._project_repo.is_member(project_id, user_id):
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="User is not a member of this project",
-            )
+            raise NotFoundException("User is not a member of this project")
 
         await self._project_repo.remove_member(project_id, user_id)
 
@@ -223,16 +180,10 @@ class ProjectService:
         # Check if project exists and user has access
         project = await self._project_repo.get_by_id(project_id)
         if not project:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Project not found",
-            )
+            raise NotFoundException("Project not found")
 
         if not await self._can_access_project(project, user):
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You don't have access to this project",
-            )
+            raise ForbiddenException("You don't have access to this project")
 
         return await self._project_repo.get_members(project_id)
 

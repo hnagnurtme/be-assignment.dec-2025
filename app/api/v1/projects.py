@@ -9,11 +9,13 @@ from app.core.auth import CurrentUser, require_admin, require_manager
 from app.dependencies import ProjectSvc
 from app.schemas import (
     ApiResponse,
+    PaginatedResponse,
     ProjectCreate,
     ProjectMemberAdd,
     ProjectResponse,
     ProjectUpdate,
     UserResponse,
+    create_pagination_meta,
 )
 
 router = APIRouter(prefix="/projects", tags=["Projects"])
@@ -46,26 +48,35 @@ async def create_project(
 
 @router.get(
     "",
-    response_model=ApiResponse[list[ProjectResponse]],
+    response_model=PaginatedResponse[ProjectResponse],
     summary=ProjectDocs.List.SUMMARY,
     description=ProjectDocs.List.DESCRIPTION,
 )
 async def list_projects(
     current_user: CurrentUser,
     project_service: ProjectSvc,
-    skip: int = Query(0, ge=0, description="Number of items to skip"),
-    limit: int = Query(10, ge=1, le=100, description="Number of items to return"),
-) -> ApiResponse[list[ProjectResponse]]:
-    """List projects based on user role."""
-    projects = await project_service.list_projects(
+    page: int = Query(1, ge=1, description="Page number (1-indexed)"),
+    per_page: int = Query(10, ge=1, le=100, description="Items per page"),
+) -> PaginatedResponse[ProjectResponse]:
+    """List projects based on user role with pagination."""
+    # Calculate skip from page number
+    skip = (page - 1) * per_page
+    
+    projects, total = await project_service.list_projects(
         organization_id=current_user.organization_id,
         user=current_user,
         skip=skip,
-        limit=limit,
+        limit=per_page,
     )
-    return ApiResponse(
+    
+    return PaginatedResponse(
         message=Messages.PROJECT_LIST_RETRIEVED,
         data=[ProjectResponse.model_validate(p) for p in projects],
+        meta=create_pagination_meta(
+            page=page,
+            per_page=per_page,
+            total_items=total,
+        ),
     )
 
 

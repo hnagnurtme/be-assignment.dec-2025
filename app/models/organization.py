@@ -1,7 +1,14 @@
+from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.user import User
+    from app.models.project import Project
 
 
 class Organization(Base):
@@ -26,5 +33,3 @@ class Organization(Base):
         return f"<Organization(id={self.id}, name='{self.name}')>"
 
 
-from app.models.user import User  
-from app.models.project import Project  

@@ -1,9 +1,15 @@
+from __future__ import annotations
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base
+
+if TYPE_CHECKING:
+    from app.models.project import Project
+    from app.models.user import User
 
 
 class ProjectMember(Base):
@@ -32,5 +38,3 @@ class ProjectMember(Base):
         return f"<ProjectMember(project_id={self.project_id}, user_id={self.user_id})>"
 
 
-from app.models.project import Project  
-from app.models.user import User  
