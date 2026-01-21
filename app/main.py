@@ -34,14 +34,6 @@ async def lifespan(app: FastAPI):
     mcp_server = MCPServer(app)
     app.state.mcp_server = mcp_server
     
-    # Initialize SSE Transport
-    sse = SseServerTransport("/mcp/messages")
-    
-    @app.get("/mcp/sse")
-    async def sse_endpoint(request: Request):
-        async with sse.connect_sse(request.scope, request.receive, request._send) as (read, write):
-            await mcp_server.server.run(read, write, mcp_server.server.create_initialization_options())
-
     yield
     logger.info("Shutting down application")
 
@@ -110,3 +102,16 @@ async def root() -> dict[str, Any]:
         "docs": "/docs",
         "health": "/api/v1/health",
     }
+
+
+# ============================================================
+# MCP Server SSE Endpoint
+# ============================================================
+
+@app.get("/mcp/sse")
+async def sse_endpoint(request: Request):
+    """MCP Server SSE connection endpoint."""
+    mcp_server: MCPServer = request.app.state.mcp_server
+    sse = SseServerTransport("/mcp/messages")
+    async with sse.connect_sse(request.scope, request.receive, request._send) as (read, write):
+        await mcp_server.server.run(read, write, mcp_server.server.create_initialization_options())

@@ -21,8 +21,6 @@ class MCPServer:
             tools = []
             for route in self.app.routes:
                 if isinstance(route, Route) and not route.path.startswith(("/docs", "/redoc", "/openapi.json", "/health")):
-                    # Skip internal/health routes
-                    
                     # Generate tool name from route path and methods
                     method = list(route.methods)[0].lower() if route.methods else "get"
                     name = f"{method}_{route.path.replace('/', '_').strip('_').replace('{', '').replace('}', '')}"
