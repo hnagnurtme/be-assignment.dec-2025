@@ -27,7 +27,6 @@ from app.services.auth_service import AuthService
 async def get_unit_of_work(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UnitOfWork:
-    """Get Unit of Work instance with all repositories."""
     return UnitOfWork(db)
 
 
@@ -38,14 +37,12 @@ async def get_unit_of_work(
 async def get_user_repository(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> IUserRepository:
-    """Get User repository instance."""
     return UserRepository(db)
 
 
 async def get_organization_repository(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> IOrganizationRepository:
-    """Get Organization repository instance."""
     return OrganizationRepository(db)
 
 
@@ -80,14 +77,10 @@ def get_jwt_service() -> IJwtService:
 # Business Service Dependencies
 # ============================================================
 
-
-
-
 async def get_user_service(
     user_repo: Annotated[IUserRepository, Depends(get_user_repository)],
     hash_service: Annotated[IHashService, Depends(get_hash_service)],
 ) -> UserService:
-    """Get User service instance with injected dependencies."""
     return UserService(user_repo, hash_service)
 
 
@@ -97,7 +90,6 @@ async def get_auth_service(
     hash_service: Annotated[IHashService, Depends(get_hash_service)],
     jwt_service: Annotated[IJwtService, Depends(get_jwt_service)],
 ) -> AuthService:
-    """Get Auth service instance with injected dependencies."""
     return AuthService(user_repo, org_repo, hash_service, jwt_service)
 
 
