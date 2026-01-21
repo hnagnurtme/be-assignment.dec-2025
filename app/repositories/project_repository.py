@@ -117,3 +117,17 @@ class ProjectRepository(BaseRepository[Project], IProjectRepository):
             .where(ProjectMember.user_id == user_id)
         )
         return result.scalar_one()
+
+    async def get_by_name_for_user(self, name: str, user_id: int) -> Project | None:
+        """Get project by name (case-insensitive) that user is a member of."""
+        result = await self.db.execute(
+            select(Project)
+            .join(ProjectMember, ProjectMember.project_id == Project.id)
+            .where(
+                ProjectMember.user_id == user_id,
+                func.lower(Project.name) == name.lower()
+            )
+            .options(selectinload(Project.created_by))
+        )
+        return result.scalar_one_or_none()
+
