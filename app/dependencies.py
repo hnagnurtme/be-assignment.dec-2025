@@ -29,6 +29,9 @@ from app.services.jwt_service import PyJwtService
 from app.services.project_service import ProjectService
 from app.services.task_service import TaskService
 from app.services.user_service import UserService
+from app.agent.agent import AgentService
+from app.models.user import User
+from app.core.auth import get_current_user
 
 
 # ============================================================
@@ -142,6 +145,17 @@ async def get_task_service(
     return TaskService(task_repo, project_repo, comment_repo, attachment_repo)
 
 
+async def get_agent_service(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> AgentService:
+    """Get Agent service with current user context."""
+    return AgentService(
+        current_user=current_user,
+        provider="groq"  # ReAct agent works with Groq
+    )
+
+
+
 # ============================================================
 # Type Aliases for Clean Dependency Injection
 # ============================================================
@@ -166,3 +180,8 @@ UserSvc = Annotated[UserService, Depends(get_user_service)]
 AuthSvc = Annotated[AuthService, Depends(get_auth_service)]
 ProjectSvc = Annotated[ProjectService, Depends(get_project_service)]
 TaskSvc = Annotated[TaskService, Depends(get_task_service)]
+
+# Agent Service
+AgentSvc = Annotated[AgentService, Depends(get_agent_service)]
+
+

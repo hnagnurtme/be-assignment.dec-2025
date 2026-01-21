@@ -36,6 +36,11 @@ class Settings(BaseSettings):
     max_upload_size_mb: int = 5
     upload_dir: str = "storage/uploads"
 
+    # MCP / AI Agent
+    groq_api_key: str | None = None
+    openai_api_key: str | None = None
+    groq_model: str = "llama-3.3-70b-versatile"
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

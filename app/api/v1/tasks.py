@@ -279,34 +279,22 @@ async def upload_attachment(
     file: UploadFile = File(...),
 ) -> ApiResponse[AttachmentResponse]:
     """Upload a file attachment."""
-    # BR5: File Size Limit (5MB)
-    MAX_SIZE = 5 * 1024 * 1024
-    # Read file to check size
-    content = await file.read()
-    if len(content) > MAX_SIZE:
-        from app.core.exceptions import BadRequestException
-        raise BadRequestException("File size exceeds 5MB limit")
+    from app.utils.file_upload import FileUploadService
     
-    # Ensure upload directory exists
-    upload_dir = os.path.join("storage", "uploads")
-    os.makedirs(upload_dir, exist_ok=True)
-    
-    # Generate unique filename
-    file_ext = os.path.splitext(file.filename)[1]
-    unique_filename = f"{uuid.uuid4()}{file_ext}"
-    file_path = os.path.join(upload_dir, unique_filename)
-    
-    # Save file
-    with open(file_path, "wb") as f:
-        f.write(content)
+    # Save file using utility service
+    file_path, file_name, file_size, file_type = await FileUploadService.save_file(
+        file, 
+        directory="uploads",
+        max_size_mb=5
+    )
         
     attachment = await task_service.add_attachment(
         task_id=task_id,
         user=current_user,
         file_path=file_path,
-        file_name=file.filename,
-        file_type=file.content_type,
-        file_size=len(content),
+        file_name=file_name,
+        file_type=file_type,
+        file_size=file_size,
     )
     
     return ApiResponse(
@@ -346,11 +334,12 @@ async def delete_attachment(
     task_service: TaskSvc,
 ) -> ApiResponse[None]:
     """Delete an attachment."""
+    from app.utils.file_upload import FileUploadService
+    
     attachment = await task_service.get_attachment_by_id(attachment_id, current_user)
     
-    # Delete local file
-    if os.path.exists(attachment.file_path):
-        os.remove(attachment.file_path)
+    # Delete local file using utility
+    FileUploadService.delete_file(attachment.file_path)
         
     await task_service.delete_attachment(attachment_id, current_user)
     
