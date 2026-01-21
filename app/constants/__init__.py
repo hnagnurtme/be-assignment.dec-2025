@@ -7,6 +7,8 @@ from app.constants.docs import (
     OrganizationDocs,
     ProjectDocs,
     TaskDocs,
+    CommentDocs,
+    ReportDocs,
     HealthDocs,
 )
 from app.constants.errors import ErrorCodes
@@ -18,6 +20,8 @@ __all__ = [
     "OrganizationDocs",
     "ProjectDocs",
     "TaskDocs",
+    "CommentDocs",
+    "ReportDocs",
     "HealthDocs",
     "ErrorCodes",
 ]

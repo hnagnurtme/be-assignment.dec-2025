@@ -132,6 +132,30 @@ class TaskDocs:
         DESCRIPTION = "Update the status of a task (todo, in-progress, done)."
 
 
+class CommentDocs:
+    """Documentation for comment endpoints."""
+
+    class Create:
+        SUMMARY = "Add comment"
+        DESCRIPTION = "Add a new comment to a task."
+
+    class List:
+        SUMMARY = "List comments"
+        DESCRIPTION = "Get a list of all comments on a task."
+
+
+class ReportDocs:
+    """Documentation for reporting endpoints."""
+
+    class TaskCount:
+        SUMMARY = "Task count by status"
+        DESCRIPTION = "Get the number of tasks in each status for a project."
+
+    class OverdueTasks:
+        SUMMARY = "Overdue tasks"
+        DESCRIPTION = "Get a list of overdue tasks in a project."
+
+
 class HealthDocs:
     """Documentation for health check endpoints."""
 

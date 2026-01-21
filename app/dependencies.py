@@ -10,16 +10,24 @@ from app.db.unit_of_work import UnitOfWork
 from app.repositories import (
     IOrganizationRepository,
     IProjectRepository,
+    ITaskRepository,
+    ICommentRepository,
+    IAttachmentRepository,
     IUserRepository,
     OrganizationRepository,
     ProjectRepository,
+    TaskRepository,
+    CommentRepository,
+    AttachmentRepository,
     UserRepository,
 )
+
 from app.services.interfaces import IHashService, IJwtService
 from app.services.auth_service import AuthService
 from app.services.hash_service import BcryptHashService
 from app.services.jwt_service import PyJwtService
 from app.services.project_service import ProjectService
+from app.services.task_service import TaskService
 from app.services.user_service import UserService
 
 
@@ -52,6 +60,24 @@ async def get_project_repository(
     db: Annotated[AsyncSession, Depends(get_db)],
 ) -> IProjectRepository:
     return ProjectRepository(db)
+
+
+async def get_task_repository(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> ITaskRepository:
+    return TaskRepository(db)
+
+
+async def get_comment_repository(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> ICommentRepository:
+    return CommentRepository(db)
+
+
+async def get_attachment_repository(
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> IAttachmentRepository:
+    return AttachmentRepository(db)
 
 
 # ============================================================
@@ -107,6 +133,15 @@ async def get_project_service(
     return ProjectService(project_repo, user_repo)
 
 
+async def get_task_service(
+    task_repo: Annotated[ITaskRepository, Depends(get_task_repository)],
+    project_repo: Annotated[IProjectRepository, Depends(get_project_repository)],
+    comment_repo: Annotated[ICommentRepository, Depends(get_comment_repository)],
+    attachment_repo: Annotated[IAttachmentRepository, Depends(get_attachment_repository)],
+) -> TaskService:
+    return TaskService(task_repo, project_repo, comment_repo, attachment_repo)
+
+
 # ============================================================
 # Type Aliases for Clean Dependency Injection
 # ============================================================
@@ -118,6 +153,9 @@ UoW = Annotated[UnitOfWork, Depends(get_unit_of_work)]
 UserRepo = Annotated[IUserRepository, Depends(get_user_repository)]
 OrgRepo = Annotated[IOrganizationRepository, Depends(get_organization_repository)]
 ProjectRepo = Annotated[IProjectRepository, Depends(get_project_repository)]
+TaskRepo = Annotated[ITaskRepository, Depends(get_task_repository)]
+CommentRepo = Annotated[ICommentRepository, Depends(get_comment_repository)]
+AttachmentRepo = Annotated[IAttachmentRepository, Depends(get_attachment_repository)]
 
 # Infrastructure Services
 HashSvc = Annotated[IHashService, Depends(get_hash_service)]
@@ -127,3 +165,4 @@ JwtSvc = Annotated[IJwtService, Depends(get_jwt_service)]
 UserSvc = Annotated[UserService, Depends(get_user_service)]
 AuthSvc = Annotated[AuthService, Depends(get_auth_service)]
 ProjectSvc = Annotated[ProjectService, Depends(get_project_service)]
+TaskSvc = Annotated[TaskService, Depends(get_task_service)]

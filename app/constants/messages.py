@@ -47,6 +47,13 @@ class Messages:
     TASK_ASSIGNED = "Task assigned successfully"
     TASK_STATUS_UPDATED = "Task status updated"
 
+    # Comment messages
+    COMMENT_ADDED = "Comment added successfully"
+    COMMENTS_RETRIEVED = "Comments retrieved successfully"
+
+    # Report messages
+    REPORT_RETRIEVED = "Report generated successfully"
+
     # Health messages
     API_HEALTHY = "API is healthy"
     DATABASE_HEALTHY = "Database connection is healthy"
