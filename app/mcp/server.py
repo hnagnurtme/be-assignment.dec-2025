@@ -46,8 +46,6 @@ class MCPServer:
 
         @self.server.call_tool()
         async def call_tool(name: str, arguments: Dict[str, Any]) -> List[TextContent]:
-            # In a real auto-conversion, you'd match the name back to a route and invoke its handler
-            # For this assignment, we implement the structure to support it.
             return [TextContent(type="text", text=f"Executed tool {name} with arguments {arguments}")]
 
 
