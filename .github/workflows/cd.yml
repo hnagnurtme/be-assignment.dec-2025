@@ -89,6 +89,10 @@ jobs:
             JWT_ACCESS_TOKEN_EXPIRE_MINUTES=30
             JWT_REFRESH_TOKEN_EXPIRE_DAYS=7
             
+            # AI Agent API Keys
+            GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}
+            GROQ_MODEL=llama-3.3-70b-versatile
+            
             # Application
             APP_ENV=production
             MAX_UPLOAD_SIZE_MB=10
